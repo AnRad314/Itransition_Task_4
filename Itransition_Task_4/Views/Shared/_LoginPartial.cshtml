@@ -1,0 +1,28 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+<ul class="navbar-nav">
+	@if (SignInManager.IsSignedIn(User))
+	{
+		<form class="form-inline my-2 my-lg-0" method="post" asp-controller="Account" asp-action="Logout">
+			<label class="mr-3"><b>@User.FindFirst("LoginName").Value</b></label>
+			<input type="submit" value="Выход" class="btn btn-warning mr-3" />
+		</form>
+	}
+	else
+	{
+		<form asp-action="ExternalAuthentication" asp-controller="Account" method="post" class="form-horizontal" asp-route-url="@ViewBag.Url">
+			<div>
+				<button type="submit" class="btn btn-light mr-5" name="provider" value="Facebook">
+					<img src="~/img/logoAuthentication/facebook_logo.png" width="30" height="30" class="d-inline-block align-top">
+				</button>
+				<button type="submit" class="btn btn-light mr-5" name="provider" value="Google">
+					<img src="~/img/logoAuthentication/google_logo.png" width="30" height="30" class="d-inline-block align-top">
+				</button>
+				<button type="submit" class="btn btn-light mr-5" name="provider" value="GitHub">
+					<img src="~/img/logoAuthentication/github.png" width="30" height="30" class="d-inline-block align-top">
+				</button>
+			</div>
+		</form>
+	}
+</ul>
+

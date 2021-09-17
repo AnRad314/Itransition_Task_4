@@ -1,0 +1,83 @@
+﻿@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+
+@{
+	ViewData["Title"] = "Statistics";
+}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.5.1/chart.min.js"></script>
+
+@{
+	if (SignInManager.IsSignedIn(User) && bool.Parse(User.FindFirst("IsBlocked").Value))
+	{
+		<div class="alert alert-warning alert-dismissible fade show" role="alert">
+			<strong>This account is blocked!</strong> You should sing in again.
+			<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+				<span aria-hidden="true">&times;</span>
+			</button>
+		</div>
+	}
+}
+
+<div class="container">
+	<div class="row justify-content-md-center">
+		@{if (ViewBag.Count == 0)
+			{
+				<h4> Be the first user</h4>
+			}
+			else
+			{
+				<h4>
+					Authorized users structure by provider.
+					<br />Only @ViewBag.Count people
+				</h4>
+			}
+		}
+	</div>
+	<div class="row justify-content-md-center">
+		<div class="card">
+			<div class="card-body">
+				<canvas id="myChart" width="450" height="450"></canvas>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script type="text/javascript">
+	var nameProvider = new Array();
+	var countPriveder = new Array();
+	var thickline = 0;
+	if (countPriveder.length != 0) {
+
+		thickline = 13
+	}
+	$(document).ready(function () {
+		$.getJSON("Home/GetData", function (mydata) {
+			$.each(mydata, function (key, val) {
+				nameProvider.push(key + " " + val);
+				countPriveder.push(val)
+			});
+			var ctx = document.getElementById('myChart');
+			var myChart = new Chart(ctx, {
+				type: 'pie',
+				data: {
+					labels: nameProvider,
+					datasets: [{
+						data: countPriveder,
+						backgroundColor: [
+							"#F7464A", "#46BFBD", "#FDB45C"
+						],
+						hoverOffset: thickline,
+						borderWidth: 0
+					}]
+				}
+			});
+		});
+	});
+
+	$('.alert').alert()
+</script>
+
+
+

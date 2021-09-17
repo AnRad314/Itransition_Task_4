@@ -1,0 +1,138 @@
+﻿@{
+	ViewData["Title"] = "History";
+}
+@model IEnumerable<UsersViewModel>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/2.1.3/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/js/bootstrap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.10.0/bootstrap-table.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.9.1/extensions/editable/bootstrap-table-editable.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.9.1/extensions/export/bootstrap-table-export.js"></script>
+<script src="https://rawgit.com/hhurz/tableExport.jquery.plugin/master/tableExport.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-table/1.9.1/extensions/filter-control/bootstrap-table-filter-control.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+
+<div class="toolbar">
+	<button class="btn" onclick="GetCheckUsers(this)" data-url="/Home/Delete" data-toggle="tooltip" data-placement="top" title="Delete">
+		<i class="fa fa-trash fa-3x"></i>
+	</button>
+	<button class="btn" onclick="GetCheckUsers(this)" data-url="/Home/Lock" data-toggle="tooltip" data-placement="top" title="Lock">
+		<i class="fa fa-lock fa-3x"></i>
+	</button>
+	<button class="btn" onclick="GetCheckUsers(this)" data-url="/Home/UnLock" data-toggle="tooltip" data-placement="top" title="Unlock">
+		<i class="fa fa-unlock fa-3x"></i>
+	</button>	
+</div>
+<table id="table"
+	   data-toggle="table"
+	   data-click-to-select="true"
+	   data-filter-control="true"
+	   data-toolbar="#toolbar"
+	   class="table-responsive">
+	<thead>
+		<tr>
+			<th data-field="state" data-checkbox="true"></th>
+			<th data-sortable="true" class="text-center align-content-center">
+				@Html.DisplayNameFor(model => model.Id)
+			</th>
+			<th data-sortable="true" class="text-center align-middle">
+				@Html.DisplayNameFor(model => model.LoginName)
+			</th>
+			<th data-field="prenom" data-filter-control="select" data-sortable="true" class="text-center">
+				@Html.DisplayNameFor(model => model.Provider)
+			</th>
+			<th data-sortable="true" class="text-center align-content-center">
+				@Html.DisplayNameFor(model => model.DataRegistration)
+			</th>
+			<th data-sortable="true" class="text-center align-content-center">
+				@Html.DisplayNameFor(model => model.DataLastVisit)
+			</th>
+			<th data-field="examen" data-filter-control="select" data-sortable="true" class="text-center">
+				@Html.DisplayNameFor(model => model.Islockedout)
+			</th>
+		</tr>
+	</thead>
+	<tbody>
+		@foreach (var item in Model)
+		{
+			<tr>
+				<td class="bs-checkbox">
+					<input data-field="state" data-index="@item.Id" name="btSelectItem" type="checkbox" class="mycheckbox" onchange="act(this)" data-checkbox="true">
+				</td>
+				<td>
+					@item.Id
+				</td>
+				<td>
+					@item.LoginName
+				</td>
+				<td>
+					@item.Provider
+				</td>
+				<td>
+					@item.DataRegistration.ToString("d")
+				</td>
+				<td>
+					@item.DataLastVisit.ToString("d")
+				</td>
+				<td>
+					@item.Islockedout
+				</td>
+			</tr>
+		}
+	</tbody>
+</table>
+
+<script type="text/javascript">
+
+	function GetCheckUsers(object) {
+		var direct = object.getAttribute('data-url');
+		var list = new Array();
+		$('#table').find('[type="checkbox"]:checked').each(function () {
+			list.push($(this).closest('tr').find('td:nth-child(2)').text().trim());
+		});
+		if (list.length != 0) {
+			SendToControll(direct, list);
+		}
+	};
+
+	function SendToControll(urlDirect, IdUsers) {
+		
+		console.log(urlDirect);
+		$.post({
+			url: urlDirect,
+			contentType: 'application/json',
+			data: JSON.stringify(IdUsers),
+		}).done(function (url) {
+			window.location.href = url;
+		});
+
+
+			
+	}
+
+	function DeleteJob(result) {
+		var list = new Array();
+		$('#table').find('[type="checkbox"]:checked').each(function () {
+			list.push($(this).closest('tr').find('td:nth-child(2)').text().trim());
+		});
+		result = list;
+	};
+	var $table = $('#table');
+	$(function () {
+		$('#toolbar').find('select').change(function () {
+			$table.bootstrapTable('refreshOptions', {
+				exportDataType: $(this).val()
+			});
+		});
+	});
+
+	var trBoldBlue = $("table");
+	$(trBoldBlue).on("click", "tr", function () {
+		$(this).toggleClass("bold-blue");
+	});
+</script>
+
+
+
+
