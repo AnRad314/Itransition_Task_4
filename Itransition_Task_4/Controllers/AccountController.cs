@@ -80,5 +80,9 @@ namespace Itransition_Task_4.Controllers
             await _signInManager.SignOutAsync();
             return RedirectToAction("Index", "Home");
         }
+        public IActionResult AccessDenied ()
+		{
+            return RedirectToAction("Index", "Home");
+        }
     }
 }
