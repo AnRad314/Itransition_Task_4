@@ -29,7 +29,7 @@ namespace Itransition_Task_4.Controllers
         {
             return RedirectToAction("Index", "Home");
         }
-        public IActionResult ExternalAuthentication(string url, string provider)
+        public IActionResult ExternalAuthentication(string provider)
         {
             var redirectUrl = Url.Action(nameof(ExternalLoginCallback), "Account");
             var properties = _signInManager.ConfigureExternalAuthenticationProperties(provider, redirectUrl);

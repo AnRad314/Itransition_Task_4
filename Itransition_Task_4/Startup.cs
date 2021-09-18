@@ -14,6 +14,7 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http;
+using System;
 
 namespace Itransition_Task_4
 {
@@ -31,9 +32,13 @@ namespace Itransition_Task_4
 			// todo: use Configuration.GetConnectionString(...)
 			services.AddDbContext<ApplicationDbContext>(options =>
 				options.UseSqlServer("Server=tcp:itransition-task-4dbserver.database.windows.net,1433;Initial Catalog=Itransition_Task_4_db;Persist Security Info=False;User ID=dbadmin;Password=adminpass0#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"));
+			
+			services.Configure<SecurityStampValidatorOptions>(options =>
+				options.ValidationInterval = TimeSpan.Zero);
 
-			services.AddIdentity<ApplicationUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = false)
-				.AddEntityFrameworkStores<ApplicationDbContext>();
+			services.AddIdentity<ApplicationUser, IdentityRole>(options => { options.SignIn.RequireConfirmedAccount = false;								
+				})
+				.AddEntityFrameworkStores<ApplicationDbContext>();			
 
 			services.AddAuthentication()
 				.AddCookie()
@@ -79,7 +84,6 @@ namespace Itransition_Task_4
 				});	
 			services.AddControllersWithViews();
 		}
-
 		
 		public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
 		{

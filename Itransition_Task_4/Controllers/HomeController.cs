@@ -71,6 +71,7 @@ namespace TItransition_Task_4.Controllers
 					{
 						await _userManager.RemoveLoginAsync(user, info.LoginProvider, info.ProviderKey);
 					}
+					await _userManager.UpdateSecurityStampAsync(user); //todo: added
 					await _userManager.DeleteAsync(user);
 				}
 			}
