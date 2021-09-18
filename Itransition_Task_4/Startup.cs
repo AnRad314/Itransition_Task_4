@@ -70,22 +70,14 @@ namespace Itransition_Task_4
 			.AddFacebook(options =>
 			{
 				options.ClientId = Configuration["Facebook:ClientId"];
-				options.ClientSecret = Configuration["Facebook:ClientSecret"];
-				//options.AccessDeniedPath = "/Home/Index";
+				options.ClientSecret = Configuration["Facebook:ClientSecret"];				
+			})
+			.AddGoogle(options =>
+			{				
+				options.ClientId = Configuration["Google:ClientId"];
+				options.ClientSecret = Configuration["Google:ClientSecret"];
 			});
-			//.AddGoogle(options =>
-			//{
-			//	IConfigurationSection googleAuthNSection =
-			//	Configuration.GetSection("Authentication:Google");
-			//	options.ClientId = Configuration["Authentication:Google:ClientId"];
-			//	options.ClientSecret = Configuration["Authentication:Google:ClientSecret"];
-			//});
-			//.AddMicrosoftAccount(options =>
-			//{
-			//	options.ClientId = Configuration["Authentication:Microsoft:ClientId"];
-			//	options.ClientSecret = Configuration["Authentication:Microsoft:ClientSecret"];
-			//	options.AccessDeniedPath = "/Home/Index";
-			//});
+			
 
 			services.AddControllersWithViews();
 		}
