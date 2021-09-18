@@ -71,7 +71,7 @@ namespace TItransition_Task_4.Controllers
 					{
 						await _userManager.RemoveLoginAsync(user, info.LoginProvider, info.ProviderKey);
 					}
-					await _userManager.UpdateSecurityStampAsync(user); //todo: added
+					await _userManager.UpdateSecurityStampAsync(user);
 					await _userManager.DeleteAsync(user);
 				}
 			}
@@ -87,6 +87,7 @@ namespace TItransition_Task_4.Controllers
 					user.LockoutEnabled = false;
 					await _userManager.UpdateAsync(user);
 					await _signInManager.RefreshSignInAsync(user);
+					await _userManager.UpdateSecurityStampAsync(user);
 				}
 			}
 			return await Task.FromResult(Url.Action("Privacy", "Home"));
