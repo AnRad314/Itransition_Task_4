@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using Itransition_Task_4.Data;
 using Itransition_Task_4.Models;
 using Itransition_Task_4.ViewModel;
+using System.Security.Claims;
 
 namespace TItransition_Task_4.Controllers
 {
@@ -25,7 +26,7 @@ namespace TItransition_Task_4.Controllers
 
 		public IActionResult Index()
 		{
-			ViewBag.Count = _context.Users.ToList().Count;			
+			ViewBag.Count = _context.Users.ToList().Count;				
 			return View();
 		}
 
@@ -41,7 +42,7 @@ namespace TItransition_Task_4.Controllers
 			return Json(source);
 		}
 
-		[Authorize]
+		[Authorize(Policy = "OnlyForUnBlocked")]		
 		public IActionResult Privacy()
 		{
 			var usersData = _context.Users.Join(_context.UserLogins, u => u.Id, i => i.UserId, (us, prov) => new UsersViewModel
@@ -81,13 +82,27 @@ namespace TItransition_Task_4.Controllers
 		{
 			foreach (var idUser in model)
 			{
-				var user = await _userManager.FindByIdAsync(idUser);
+				ApplicationUser user = await _userManager.FindByIdAsync(idUser);
+				
 				if (user != null && user.LockoutEnabled)
 				{
-					user.LockoutEnabled = false;
+					user.LockoutEnabled = false;					
+					var claimsList = await  _userManager.GetClaimsAsync(user);
+					foreach(var cl in claimsList)
+					{
+						if(cl.Type == "IsBlocked")
+						{
+							await _userManager.RemoveClaimAsync(user, cl);
+							Claim block = new Claim("IsBlocked", "true");
+							await _userManager.AddClaimAsync(user, block);
+						}
+					}
 					await _userManager.UpdateAsync(user);
-					await _signInManager.RefreshSignInAsync(user);
-					await _userManager.UpdateSecurityStampAsync(user);
+					if (user.UserName != User.Identity.Name)
+					{
+						await _signInManager.RefreshSignInAsync(user);
+						await _userManager.UpdateSecurityStampAsync(user);
+					}
 				}
 			}
 			return await Task.FromResult(Url.Action("Privacy", "Home"));
@@ -100,6 +115,17 @@ namespace TItransition_Task_4.Controllers
 				if (user != null && !user.LockoutEnabled)
 				{
 					user.LockoutEnabled = true;
+					var claimsList = await _userManager.GetClaimsAsync(user);
+					foreach (var cl in claimsList)
+					{
+						if (cl.Type == "IsBlocked")
+						{
+							await _userManager.RemoveClaimAsync(user, cl);
+							Claim block = new Claim("IsBlocked", "false");
+							await _userManager.AddClaimAsync(user, block);
+						}
+					}
+					await _signInManager.RefreshSignInAsync(user);
 					await _userManager.UpdateAsync(user);
 				}
 			}

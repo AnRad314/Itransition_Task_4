@@ -26,62 +26,72 @@ namespace Itransition_Task_4
 		}
 
 		public IConfiguration Configuration { get; }
-		
+
 		public void ConfigureServices(IServiceCollection services)
 		{
 			// todo: use Configuration.GetConnectionString(...)
 			services.AddDbContext<ApplicationDbContext>(options =>
 				options.UseSqlServer("Server=tcp:itransition-task-4dbserver.database.windows.net,1433;Initial Catalog=Itransition_Task_4_db;Persist Security Info=False;User ID=dbadmin;Password=adminpass0#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"));
-			
+
 			services.Configure<SecurityStampValidatorOptions>(options =>
 				options.ValidationInterval = TimeSpan.Zero);
 
-			services.AddIdentity<ApplicationUser, IdentityRole>(options => { options.SignIn.RequireConfirmedAccount = false;								
-				})
-				.AddEntityFrameworkStores<ApplicationDbContext>();			
+			services.AddIdentity<ApplicationUser, IdentityRole>(options => { options.SignIn.RequireConfirmedAccount = false;
+			})
+				.AddEntityFrameworkStores<ApplicationDbContext>();
 
 			services.AddAuthentication()
-				.AddCookie()
-				.AddOAuth("GitHub", options =>
+			.AddCookie()
+			.AddOAuth("GitHub", options =>
+			{
+				options.ClientId = Configuration["GitHub:ClientId"];
+				options.ClientSecret = Configuration["GitHub:ClientSecret"];
+				options.CallbackPath = new PathString("/github-oauth");
+				options.AuthorizationEndpoint = "https://github.com/login/oauth/authorize";
+				options.TokenEndpoint = "https://github.com/login/oauth/access_token";
+				options.UserInformationEndpoint = "https://api.github.com/user";
+				options.SaveTokens = true;
+				options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
+				options.ClaimActions.MapJsonKey(ClaimTypes.Name, "name");
+				options.ClaimActions.MapJsonKey("urn:github:login", "login");
+				options.ClaimActions.MapJsonKey("urn:github:url", "html_url");
+				options.ClaimActions.MapJsonKey("urn:github:avatar", "avatar_url");
+				options.AccessDeniedPath = "/Home/Index";
+				options.Events = new OAuthEvents
 				{
-					options.ClientId = Configuration["GitHub:ClientId"];
-					options.ClientSecret = Configuration["GitHub:ClientSecret"];
-					options.CallbackPath = new PathString("/github-oauth");
-					options.AuthorizationEndpoint = "https://github.com/login/oauth/authorize";
-					options.TokenEndpoint = "https://github.com/login/oauth/access_token";
-					options.UserInformationEndpoint = "https://api.github.com/user";
-					options.SaveTokens = true;
-					options.ClaimActions.MapJsonKey(ClaimTypes.NameIdentifier, "id");
-					options.ClaimActions.MapJsonKey(ClaimTypes.Name, "name");
-					options.ClaimActions.MapJsonKey("urn:github:login", "login");
-					options.ClaimActions.MapJsonKey("urn:github:url", "html_url");
-					options.ClaimActions.MapJsonKey("urn:github:avatar", "avatar_url");
-					options.Events = new OAuthEvents
+					OnCreatingTicket = async context =>
 					{
-						OnCreatingTicket = async context =>
-						{
-							var request = new HttpRequestMessage(HttpMethod.Get, context.Options.UserInformationEndpoint);
-							request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
-							request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", context.AccessToken);
-							var response = await context.Backchannel.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, context.HttpContext.RequestAborted);
-							response.EnsureSuccessStatusCode();
-							var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
-							context.RunClaimActions(json.RootElement);
-							context.Success();
-						}
-					};
-					
-				})
-				.AddFacebook(options =>
-				{
-					options.ClientId = Configuration["Facebook:ClientId"];
-					options.ClientSecret = Configuration["Facebook:ClientSecret"];				
-				})
-				.AddGoogle(options =>
-				{				
-					options.ClientId = Configuration["Google:ClientId"];
-					options.ClientSecret = Configuration["Google:ClientSecret"];
-				});	
+						var request = new HttpRequestMessage(HttpMethod.Get, context.Options.UserInformationEndpoint);
+						request.Headers.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+						request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", context.AccessToken);
+						var response = await context.Backchannel.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, context.HttpContext.RequestAborted);
+						response.EnsureSuccessStatusCode();
+						var json = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+						context.RunClaimActions(json.RootElement);
+						context.Success();
+					}
+				};
+
+			})
+			.AddFacebook(options =>
+			{
+				options.ClientId = Configuration["Facebook:ClientId"];
+				options.ClientSecret = Configuration["Facebook:ClientSecret"];
+				options.AccessDeniedPath = "/Home/Index";
+			})
+			.AddGoogle(options =>
+			{
+				options.ClientId = Configuration["Google:ClientId"];
+				options.ClientSecret = Configuration["Google:ClientSecret"];
+				options.AccessDeniedPath = "/Home/Index";
+			});
+			services.AddAuthorization(opts => {
+				opts.AddPolicy("OnlyForUnBlocked", policy => {
+					policy.RequireClaim("IsBlocked", "false");
+				});
+			});
+
+
 			services.AddControllersWithViews();
 		}
 		
