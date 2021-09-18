@@ -88,17 +88,17 @@ namespace TItransition_Task_4.Controllers
 				{
 					user.LockoutEnabled = false;					
 					var claimsList = await  _userManager.GetClaimsAsync(user);					
-						foreach (var cl in claimsList)
+					foreach (var cl in claimsList)
+					{
+						if (cl.Type == "IsBlocked")
 						{
-							if (cl.Type == "IsBlocked")
-							{
-								await _userManager.RemoveClaimAsync(user, cl);
-								Claim block = new Claim("IsBlocked", "True");
-								await _userManager.AddClaimAsync(user, block);
-							}
-						}							
-						await _userManager.UpdateSecurityStampAsync(user);	
-						await _userManager.UpdateAsync(user);					
+							await _userManager.RemoveClaimAsync(user, cl);
+							Claim block = new Claim("IsBlocked", "True");
+							await _userManager.AddClaimAsync(user, block);
+						}
+					}							
+					await _userManager.UpdateSecurityStampAsync(user);	
+					await _userManager.UpdateAsync(user);					
 				}
 			}
 			return await Task.FromResult(Url.Action("Privacy", "Home"));
