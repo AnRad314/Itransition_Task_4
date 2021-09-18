@@ -28,11 +28,13 @@ namespace Itransition_Task_4
 		
 		public void ConfigureServices(IServiceCollection services)
 		{
+			// todo: use Configuration.GetConnectionString(...)
 			services.AddDbContext<ApplicationDbContext>(options =>
-				options.UseSqlServer(Configuration.GetConnectionString("UsersContext")));
+				options.UseSqlServer("Server=tcp:itransition-task-4dbserver.database.windows.net,1433;Initial Catalog=Itransition_Task_4_db;Persist Security Info=False;User ID=dbadmin;Password=adminpass0#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"));
 
 			services.AddIdentity<ApplicationUser, IdentityRole>(options => options.SignIn.RequireConfirmedAccount = false)
-				.AddEntityFrameworkStores<ApplicationDbContext>();				
+				.AddEntityFrameworkStores<ApplicationDbContext>();
+
 			services.AddAuthentication()
 				.AddCookie()
 				.AddOAuth("GitHub", options =>
@@ -63,27 +65,28 @@ namespace Itransition_Task_4
 							context.Success();
 						}
 					};
-				})
-			.AddFacebook(options =>
-			{
-				options.AppId = Configuration["Authentication:Facebook:AppId"];
-				options.AppSecret = Configuration["Authentication:Facebook:AppSecret"];
-				options.AccessDeniedPath = "/Home/Index1";
-			})
-			.AddGoogle(options =>
-			{
-				IConfigurationSection googleAuthNSection =
-				Configuration.GetSection("Authentication:Google");
-				options.ClientId = Configuration["Authentication:Google:ClientId"];
-				options.ClientSecret = Configuration["Authentication:Google:ClientSecret"];
-			})
-			.AddMicrosoftAccount(options =>
-			{
-				options.ClientId = Configuration["Authentication:Microsoft:ClientId"];
-				options.ClientSecret = Configuration["Authentication:Microsoft:ClientSecret"];
-				options.AccessDeniedPath = "/Home/Index1"; 
-			});
-			
+					// todo: fix auth
+				});
+			//.AddFacebook(options =>
+			//{
+			//	options.AppId = Configuration["Authentication:Facebook:AppId"];
+			//	options.AppSecret = Configuration["Authentication:Facebook:AppSecret"];
+			//	options.AccessDeniedPath = "/Home/Index";
+			//})
+			//.AddGoogle(options =>
+			//{
+			//	IConfigurationSection googleAuthNSection =
+			//	Configuration.GetSection("Authentication:Google");
+			//	options.ClientId = Configuration["Authentication:Google:ClientId"];
+			//	options.ClientSecret = Configuration["Authentication:Google:ClientSecret"];
+			//});
+			//.AddMicrosoftAccount(options =>
+			//{
+			//	options.ClientId = Configuration["Authentication:Microsoft:ClientId"];
+			//	options.ClientSecret = Configuration["Authentication:Microsoft:ClientSecret"];
+			//	options.AccessDeniedPath = "/Home/Index";
+			//});
+
 			services.AddControllersWithViews();
 		}
 
@@ -96,9 +99,10 @@ namespace Itransition_Task_4
 			}
 			else
 			{
-				app.UseExceptionHandler("/Home/Error");
-				
+				app.UseExceptionHandler("/Error");
+				app.UseHsts();
 			}
+
 			app.UseHttpsRedirection();
 			app.UseStaticFiles();
 

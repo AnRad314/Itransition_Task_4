@@ -13,7 +13,7 @@ namespace TItransition_Task_4.Controllers
 {
 	public class HomeController : Controller
 	{
-		private readonly ApplicationDbContext _context; 
+		private readonly ApplicationDbContext _context;
 		private readonly UserManager<ApplicationUser> _userManager;
 		private readonly SignInManager<ApplicationUser> _signInManager;
 		public HomeController(ApplicationDbContext context, UserManager<ApplicationUser> userManager, SignInManager<ApplicationUser> signInManager)
@@ -31,12 +31,12 @@ namespace TItransition_Task_4.Controllers
 
 		public IActionResult GetData()
 		{
-			var dataGoogle = _context.UserLogins.Where(x => x.LoginProvider == "Google").Count();
-			var dataFacebook = _context.UserLogins.Where(x => x.LoginProvider == "Facebook").Count();
-			var dataGitHub = _context.UserLogins.Where(x => x.LoginProvider == "GitHub").Count();
+			var dataGoogle = _context.UserLogins.Count(x => x.LoginProvider == "Google");
+			var dataFacebook = _context.UserLogins.Count(x => x.LoginProvider == "Facebook");
+			var dataGitHub = _context.UserLogins.Count(x => x.LoginProvider == "GitHub");
 			DiagramViewModel source = new DiagramViewModel();
-			source.Facebook = dataFacebook;
-			source.Google = dataGoogle;
+			source.Facebook = dataGoogle;
+			source.Google = dataFacebook;
 			source.GitHub = dataGitHub;
 			return Json(source);
 		}
@@ -51,7 +51,7 @@ namespace TItransition_Task_4.Controllers
 				Provider = prov.LoginProvider,
 				DataRegistration = us.DataRegistarion,
 				DataLastVisit = us.DataLastVisit,
-				Islockedout = us.LockoutEnabled ? "active": "blocked"
+				Islockedout = us.LockoutEnabled ? "active" : "blocked"
 			});
 			return View(usersData.ToList());
 		}
@@ -60,10 +60,10 @@ namespace TItransition_Task_4.Controllers
 		[HttpPost]
 		public async Task<string> Delete([FromBody] string[] model)
 		{
-			foreach(var idUser in model)
+			foreach (var idUser in model)
 			{
 				var user = await _userManager.FindByIdAsync(idUser);
-				if (user != null )
+				if (user != null)
 				{
 					var userLoginInfos = await _userManager.GetLoginsAsync(user);
 					var userClaims = await _userManager.GetClaimsAsync(user);
@@ -74,7 +74,7 @@ namespace TItransition_Task_4.Controllers
 					}
 					await _userManager.DeleteAsync(user);
 				}
-				
+
 			}
 			return await Task.FromResult(Url.Action("Privacy", "Home"));
 		}
@@ -83,13 +83,13 @@ namespace TItransition_Task_4.Controllers
 		{
 			foreach (var idUser in model)
 			{
-				var user = await _userManager.FindByIdAsync(idUser);				
+				var user = await _userManager.FindByIdAsync(idUser);
 				if (user != null && user.LockoutEnabled)
 				{
-					user.LockoutEnabled = false;					
+					user.LockoutEnabled = false;
 					await _userManager.UpdateAsync(user);
 					await _signInManager.RefreshSignInAsync(user);
-				}				
+				}
 			}
 			return await Task.FromResult(Url.Action("Privacy", "Home"));
 		}
