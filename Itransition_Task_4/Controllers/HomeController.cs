@@ -42,7 +42,7 @@ namespace TItransition_Task_4.Controllers
 			return Json(source);
 		}
 
-		[Authorize(Policy = "OnlyForUnBlocked")]		
+		[Authorize(Policy = "OnlyForUnBlocked")]
 		public IActionResult Privacy()
 		{
 			var usersData = _context.Users.Join(_context.UserLogins, u => u.Id, i => i.UserId, (us, prov) => new UsersViewModel
@@ -88,21 +88,19 @@ namespace TItransition_Task_4.Controllers
 				{
 					user.LockoutEnabled = false;					
 					var claimsList = await  _userManager.GetClaimsAsync(user);
-					foreach(var cl in claimsList)
+					if(user.UserName != User.Identity.Name)
 					{
-						if(cl.Type == "IsBlocked")
+						foreach (var cl in claimsList)
 						{
-							await _userManager.RemoveClaimAsync(user, cl);
-							Claim block = new Claim("IsBlocked", "true");
-							await _userManager.AddClaimAsync(user, block);
-						}
-					}
-					await _userManager.UpdateAsync(user);
-					if (user.UserName != User.Identity.Name)
-					{
-						await _signInManager.RefreshSignInAsync(user);
-						await _userManager.UpdateSecurityStampAsync(user);
-					}
+							if (cl.Type == "IsBlocked")
+							{
+								await _userManager.RemoveClaimAsync(user, cl);
+								Claim block = new Claim("IsBlocked", "True");
+								await _userManager.AddClaimAsync(user, block);
+							}
+						}						
+						await _userManager.UpdateSecurityStampAsync(user);					}
+						await _userManager.UpdateAsync(user);					
 				}
 			}
 			return await Task.FromResult(Url.Action("Privacy", "Home"));
@@ -121,11 +119,10 @@ namespace TItransition_Task_4.Controllers
 						if (cl.Type == "IsBlocked")
 						{
 							await _userManager.RemoveClaimAsync(user, cl);
-							Claim block = new Claim("IsBlocked", "false");
+							Claim block = new Claim("IsBlocked", "False");
 							await _userManager.AddClaimAsync(user, block);
 						}
-					}
-					await _signInManager.RefreshSignInAsync(user);
+					}					
 					await _userManager.UpdateAsync(user);
 				}
 			}

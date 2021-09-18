@@ -28,8 +28,7 @@ namespace Itransition_Task_4
 		public IConfiguration Configuration { get; }
 
 		public void ConfigureServices(IServiceCollection services)
-		{
-			// todo: use Configuration.GetConnectionString(...)
+		{			
 			services.AddDbContext<ApplicationDbContext>(options =>
 				options.UseSqlServer("Server=tcp:itransition-task-4dbserver.database.windows.net,1433;Initial Catalog=Itransition_Task_4_db;Persist Security Info=False;User ID=dbadmin;Password=adminpass0#;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"));
 
@@ -85,12 +84,12 @@ namespace Itransition_Task_4
 				options.ClientSecret = Configuration["Google:ClientSecret"];
 				options.AccessDeniedPath = "/Home/Index";
 			});
+
 			services.AddAuthorization(opts => {
 				opts.AddPolicy("OnlyForUnBlocked", policy => {
-					policy.RequireClaim("IsBlocked", "false");
+					policy.RequireClaim("IsBlocked", "False"); 
 				});
 			});
-
 
 			services.AddControllersWithViews();
 		}
