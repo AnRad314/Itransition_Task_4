@@ -66,13 +66,13 @@ namespace Itransition_Task_4
 						}
 					};
 					// todo: fix auth
-				});
-			//.AddFacebook(options =>
-			//{
-			//	options.AppId = Configuration["Authentication:Facebook:AppId"];
-			//	options.AppSecret = Configuration["Authentication:Facebook:AppSecret"];
-			//	options.AccessDeniedPath = "/Home/Index";
-			//})
+				})
+			.AddFacebook(options =>
+			{
+				options.ClientId = Configuration["Facebook:ClientId"];
+				options.ClientSecret = Configuration["Facebook:ClientSecret"];
+				//options.AccessDeniedPath = "/Home/Index";
+			});
 			//.AddGoogle(options =>
 			//{
 			//	IConfigurationSection googleAuthNSection =
