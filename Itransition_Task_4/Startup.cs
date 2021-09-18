@@ -65,20 +65,18 @@ namespace Itransition_Task_4
 							context.Success();
 						}
 					};
-					// todo: fix auth
+					
 				})
-			.AddFacebook(options =>
-			{
-				options.ClientId = Configuration["Facebook:ClientId"];
-				options.ClientSecret = Configuration["Facebook:ClientSecret"];				
-			})
-			.AddGoogle(options =>
-			{				
-				options.ClientId = Configuration["Google:ClientId"];
-				options.ClientSecret = Configuration["Google:ClientSecret"];
-			});
-			
-
+				.AddFacebook(options =>
+				{
+					options.ClientId = Configuration["Facebook:ClientId"];
+					options.ClientSecret = Configuration["Facebook:ClientSecret"];				
+				})
+				.AddGoogle(options =>
+				{				
+					options.ClientId = Configuration["Google:ClientId"];
+					options.ClientSecret = Configuration["Google:ClientSecret"];
+				});	
 			services.AddControllersWithViews();
 		}
 

@@ -35,8 +35,8 @@ namespace TItransition_Task_4.Controllers
 			var dataFacebook = _context.UserLogins.Count(x => x.LoginProvider == "Facebook");
 			var dataGitHub = _context.UserLogins.Count(x => x.LoginProvider == "GitHub");
 			DiagramViewModel source = new DiagramViewModel();
-			source.Facebook = dataGoogle;
-			source.Google = dataFacebook;
+			source.Facebook = dataFacebook;
+			source.Google = dataGoogle;
 			source.GitHub = dataGitHub;
 			return Json(source);
 		}
@@ -54,8 +54,7 @@ namespace TItransition_Task_4.Controllers
 				Islockedout = us.LockoutEnabled ? "active" : "blocked"
 			});
 			return View(usersData.ToList());
-		}
-			
+		}			
 
 		[HttpPost]
 		public async Task<string> Delete([FromBody] string[] model)
@@ -74,11 +73,9 @@ namespace TItransition_Task_4.Controllers
 					}
 					await _userManager.DeleteAsync(user);
 				}
-
 			}
 			return await Task.FromResult(Url.Action("Privacy", "Home"));
 		}
-
 		public async Task<string> Lock ([FromBody] string[] model)
 		{
 			foreach (var idUser in model)
