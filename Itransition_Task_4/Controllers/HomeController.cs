@@ -87,9 +87,7 @@ namespace TItransition_Task_4.Controllers
 				if (user != null && user.LockoutEnabled)
 				{
 					user.LockoutEnabled = false;					
-					var claimsList = await  _userManager.GetClaimsAsync(user);
-					if(user.UserName != User.Identity.Name)
-					{
+					var claimsList = await  _userManager.GetClaimsAsync(user);					
 						foreach (var cl in claimsList)
 						{
 							if (cl.Type == "IsBlocked")
@@ -98,8 +96,8 @@ namespace TItransition_Task_4.Controllers
 								Claim block = new Claim("IsBlocked", "True");
 								await _userManager.AddClaimAsync(user, block);
 							}
-						}						
-						await _userManager.UpdateSecurityStampAsync(user);					}
+						}							
+						await _userManager.UpdateSecurityStampAsync(user);	
 						await _userManager.UpdateAsync(user);					
 				}
 			}

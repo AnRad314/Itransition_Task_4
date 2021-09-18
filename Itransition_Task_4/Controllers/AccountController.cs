@@ -45,22 +45,7 @@ namespace Itransition_Task_4.Controllers
             if (result.Succeeded)
             {
                 var currentUser = await _userManager.FindByLoginAsync(info.LoginProvider, info.ProviderKey);
-                currentUser.DataLastVisit = DateTime.Now.Date;
-                if(!currentUser.LockoutEnabled)
-				{
-                    var claimsList = await _userManager.GetClaimsAsync(currentUser);
-
-                    foreach (var cl in claimsList)
-                    {
-                        if (cl.Type == "IsBlocked" && cl.Value == "False")
-                        {
-                            await _userManager.RemoveClaimAsync(currentUser, cl);
-                            Claim block = new Claim("IsBlocked", "True");
-                            await _userManager.AddClaimAsync(currentUser, block);
-                        }
-                    }
-                }
-               
+                currentUser.DataLastVisit = DateTime.Now.Date; 
                 await _userManager.UpdateAsync(currentUser);
                 return RedirectToAction("Index", "Home");
             }
